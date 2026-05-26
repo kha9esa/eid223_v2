@@ -52,6 +52,7 @@ function runLoader() {
           initScrollReveal();
           startParticles();
           initProfileAnimations();
+          // NOTE: typing does NOT start here — only after gift button is pressed
         }, 900);
       }, 400);
     }
@@ -141,6 +142,7 @@ function initParallax() {
 
 /* ================================================
    6. TYPING ANIMATION
+   ✏️  Edit MESSAGE_TEXT to personalise the note!
 ================================================ */
 const MESSAGE_TEXT =
 `On this blessed day of Eid-ul-Adha, I want you to know how much you mean to me.
@@ -174,20 +176,31 @@ function typeNextChar() {
 
 /* ================================================
    7. HERO GIFT BUTTON — unlock + scroll + type
+   - message section starts with class "locked"
+   - clicking button removes "locked", adds "unlocked"
+   - scrolls to message section
+   - then starts the typing animation
 ================================================ */
 function initGiftButton() {
   openGiftBtn.addEventListener('click', () => {
+
+    // 1. Unlock the message section
     messageSection.classList.remove('locked');
     messageSection.classList.add('unlocked');
 
+    // 2. Re-run scroll reveal for elements inside
     const hiddenReveal = messageSection.querySelectorAll('.rv:not(.on)');
     setTimeout(() => {
       hiddenReveal.forEach(el => el.classList.add('on'));
     }, 100);
 
+    // 3. Smooth scroll to the message section
     messageSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    // 4. Start typing after scroll settles
     setTimeout(() => { startTyping(); }, 1200);
 
+    // 5. Shimmer the button to confirm click
     openGiftBtn.style.transform = 'scale(0.95)';
     setTimeout(() => { openGiftBtn.style.transform = ''; }, 200);
   });
@@ -202,11 +215,13 @@ function openLightbox(item) {
   const imgSrc   = item.dataset.img || thumbSrc;
   const caption  = item.dataset.caption || '';
 
+  // Instantly show already loaded thumbnail with a slight blur for seamless, instant open
   lightboxInner.innerHTML = `<img src="${thumbSrc}" alt="${caption}" style="filter:blur(4px);transition:filter 0.3s ease;" />`;
   lightboxCaption.textContent = caption;
   lightbox.classList.add('open');
   document.body.style.overflow = 'hidden';
 
+  // Preload high-resolution image in the background and swap once ready
   if (imgSrc && imgSrc !== thumbSrc) {
     const highRes = new Image();
     highRes.src = imgSrc;
@@ -227,13 +242,12 @@ function closeLightbox() {
 
 function initGallery() {
   galleryItems.forEach(item => {
-    // Both click and touchend for mobile
     item.addEventListener('click', () => openLightbox(item));
   });
   lightboxClose.addEventListener('click', closeLightbox);
   lightbox.addEventListener('click', e => { if (e.target === lightbox) closeLightbox(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
-  
+
   // Swipe to close lightbox on mobile
   let touchStartY = 0;
   lightbox.addEventListener('touchstart', e => { touchStartY = e.touches[0].clientY; }, { passive: true });
@@ -329,7 +343,7 @@ function initSurprise() {
     const y = e.touches ? e.touches[0].clientY : e.clientY;
     launchConfetti(x || window.innerWidth / 2, y || window.innerHeight / 2);
     launchHearts();
-    surpriseBtn.style.opacity     = '0.4';
+    surpriseBtn.style.opacity      = '0.4';
     surpriseBtn.style.pointerEvents = 'none';
   });
 }
@@ -356,6 +370,8 @@ document.addEventListener('DOMContentLoaded', () => {
 /* ================================================
    12. ROMANTIC PROFILE ANIMATIONS
 ================================================ */
+
+// Ticker messages cycling
 const tickerMessages = [
   'Eid Mubarak to you both 🌙',
   'Made for each other 💛',
@@ -372,11 +388,12 @@ function initProfileAnimations() {
   const tickerText = document.getElementById('loveTickerText');
   if (!floaters || !tickerText) return;
 
+  // ── 1. Continuously float romantic emojis from between the cards
   const emojiPool = ['❤️','💛','🌹','✨','💫','🌸','💖','🌙','💕','🦋','👑','🥰'];
   function spawnFloater() {
     const el = document.createElement('span');
     el.textContent = emojiPool[Math.floor(Math.random() * emojiPool.length)];
-    const leftPct = 35 + Math.random() * 30;
+    const leftPct = 35 + Math.random() * 30; // cluster around the centre
     el.style.cssText = `
       position:absolute;left:${leftPct}%;bottom:10%;
       font-size:${(Math.random() * 1.1 + 0.7).toFixed(2)}rem;
@@ -390,6 +407,7 @@ function initProfileAnimations() {
   // Spawn floaters less often on mobile to save battery
   setInterval(spawnFloater, isMobile ? 1200 : 700);
 
+  // ── 2. Ticker text cycles with fade
   function cycleTicker() {
     tickerText.style.transition = 'opacity .4s';
     tickerText.style.opacity = '0';
@@ -401,7 +419,7 @@ function initProfileAnimations() {
   }
   setInterval(cycleTicker, 3200);
 
-  // Desktop hover only — touch devices don't get mouseenter
+  // ── 3. Cards lean toward each other on hover (desktop only)
   if (!isMobile) {
     const cardBoy  = document.getElementById('cardBoy');
     const cardGirl = document.getElementById('cardGirl');
@@ -416,7 +434,7 @@ function initProfileAnimations() {
     if (cardGirl) magneticLean(cardGirl, 'left');
   }
 
-  // Card click — heart burst
+  // ── 4. Clicking either card triggers a heart burst
   [document.getElementById('cardBoy'), document.getElementById('cardGirl')].forEach(card => {
     if (!card) return;
     card.addEventListener('click', () => {
