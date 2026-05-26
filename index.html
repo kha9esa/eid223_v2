@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Eid Mubarak Gift 🌙</title>
+
+  <!--
+    FONTS: Loaded via Google Fonts with display=swap so the page
+    never waits for fonts — text shows immediately with fallbacks.
+    Works online. Offline: falls back to Georgia / serif gracefully.
+  -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet"
+    href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Dancing+Script:wght@500;700&family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap"
+    media="print" onload="this.media='all'" />
+  <!-- Immediate fallback if JS blocked -->
+  <noscript>
+    <link rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,400&family=Dancing+Script:wght@500;700&family=Lato:wght@300;400;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" />
+  </noscript>
+
+  <link rel="stylesheet" href="style.css" />
+  <meta name="theme-color" content="#060a1c" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+</head>
+<body>
+
+  <!-- ============================================
+       SECTION 1 — LOADER
+  ============================================ -->
+  <div id="loader" class="loader">
+
+    <!-- Proper SVG crescent moon using mask technique -->
+    <div class="loader__moon-wrap">
+      <svg class="loader__moon" viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <radialGradient id="lgMoonGrad" cx="32%" cy="32%" r="68%">
+            <stop offset="0%"   stop-color="#fffde0"/>
+            <stop offset="45%"  stop-color="#f5c842"/>
+            <stop offset="100%" stop-color="#9a6a00"/>
+          </radialGradient>
+          <!-- mask: white circle = show, black circle = cut away (offset right+up) -->
+          <mask id="lgCresc">
+            <circle cx="70" cy="70" r="54" fill="white"/>
+            <circle cx="98" cy="54" r="46" fill="black"/>
+          </mask>
+          <filter id="lgGlow" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur stdDeviation="6" result="b"/>
+            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+          </filter>
+        </defs>
+        <!-- Crescent: full circle rendered only through the mask -->
+        <circle cx="70" cy="70" r="54"
+                fill="url(#lgMoonGrad)"
+                mask="url(#lgCresc)"
+                filter="url(#lgGlow)"/>
+        <!-- 5-point star next to crescent -->
+        <polygon
+          points="114,24 116.5,32 125,32 118.5,37 121,45 114,40 107,45 109.5,37 103,32 111.5,32"
+          fill="#f5c842" opacity="0.95"/>
+        <!-- tiny second star -->
+        <polygon
+          points="126,54 127.5,58.5 132,58.5 128.5,61.5 130,66 126,63 122,66 123.5,61.5 120,58.5 124.5,58.5"
+          fill="#fff3b0" opacity="0.8"/>
+      </svg>
+    </div>
+
+    <p class="loader__title">Eid Mubarak</p>
+    <p class="loader__subtitle">Preparing your gift…</p>
+    <div class="loader__bar-wrap">
+      <div class="loader__bar" id="loaderBar"></div>
+    </div>
+    <p class="loader__percent" id="loaderPercent">0%</p>
+  </div>
+  <!-- END Loader -->
+
+
+  <!-- ============================================
+       MAIN SITE (hidden until loader done)
+  ============================================ -->
+  <div id="mainSite" class="main-site" style="display:none;">
+
+    <!-- Floating stars canvas — sits behind everything -->
+    <canvas id="particleCanvas" class="particle-canvas"></canvas>
+
+
+    <!-- ==========================================
+         SECTION 2 — HERO
+    ========================================== -->
+    <section class="hero" id="hero">
+
+      <!-- Background image with Ken-Burns zoom -->
+      <div class="hero__bg"></div>
+      <!-- Dark overlay for text readability -->
+      <div class="hero__overlay"></div>
+
+      <!-- Parallax dot layers -->
+      <div class="hero__stars hero__stars--far"  data-speed="0.2"></div>
+      <div class="hero__stars hero__stars--near" data-speed="0.5"></div>
+
+      <!-- Left lantern -->
+      <div class="lantern lantern--left">
+        <div class="lantern__rope"></div>
+        <div class="lantern__body"><div class="lantern__flame"></div></div>
+        <div class="lantern__tail"></div>
+      </div>
+
+      <!-- Right lantern -->
+      <div class="lantern lantern--right">
+        <div class="lantern__rope"></div>
+        <div class="lantern__body"><div class="lantern__flame"></div></div>
+        <div class="lantern__tail"></div>
+      </div>
+
+      <!-- ----------------------------------------
+           HERO CRESCENT MOON (top-right)
+           SVG mask gives perfect crescent shape
+      ---------------------------------------- -->
+      <div class="hero__moon" aria-hidden="true">
+        <svg viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="hmGrad" cx="28%" cy="28%" r="72%">
+              <stop offset="0%"   stop-color="#fffde8"/>
+              <stop offset="35%"  stop-color="#f7d060"/>
+              <stop offset="75%"  stop-color="#e8a800"/>
+              <stop offset="100%" stop-color="#7a5000"/>
+            </radialGradient>
+            <!-- Crescent mask -->
+            <mask id="hmMask">
+              <circle cx="160" cy="160" r="138" fill="white"/>
+              <!-- The shadow-circle is shifted right+up: controls crescent thickness -->
+              <circle cx="222" cy="128" r="118" fill="black"/>
+            </mask>
+            <!-- Soft outer glow -->
+            <filter id="hmGlow" x="-30%" y="-30%" width="160%" height="160%">
+              <feGaussianBlur stdDeviation="14" result="b"/>
+              <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+            </filter>
+            <!-- Inner texture -->
+            <filter id="hmTex">
+              <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" result="n"/>
+              <feColorMatrix type="saturate" values="0" in="n" result="g"/>
+              <feBlend in="SourceGraphic" in2="g" mode="soft-light" result="b"/>
+              <feComposite in="b" in2="SourceGraphic" operator="in"/>
+            </filter>
+          </defs>
+
+          <!-- Main crescent body -->
+          <circle cx="160" cy="160" r="138"
+                  fill="url(#hmGrad)"
+                  mask="url(#hmMask)"
+                  filter="url(#hmGlow)"/>
+
+          <!-- Bright rim highlight along inner crescent edge -->
+          <circle cx="160" cy="160" r="138"
+                  fill="none"
+                  stroke="rgba(255,253,220,0.35)"
+                  stroke-width="3"
+                  mask="url(#hmMask)"/>
+
+          <!-- Large star beside crescent -->
+          <polygon
+            points="258,52  261,63  273,63  264,70  267,81  258,74  249,81  252,70  243,63  255,63"
+            fill="#fff8c0" opacity="0.98"/>
+          <!-- Medium star -->
+          <polygon
+            points="278,100 280,107 288,107 282,112 284,119 278,115 272,119 274,112 268,107 276,107"
+            fill="#f5c842" opacity="0.9"/>
+          <!-- Small star -->
+          <polygon
+            points="244,30 245.5,35 251,35 246.5,38.5 248,43.5 244,40.5 240,43.5 241.5,38.5 237,35 242.5,35"
+            fill="#fffde0" opacity="0.75"/>
+        </svg>
+      </div>
+
+      <!-- Hero text content -->
+      <div class="hero__content">
+        <p class="hero__arabic anim-fade-up">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</p>
+
+        <h1 class="hero__title anim-fade-up d1">
+          <span class="line-small">Happy</span>
+          <span class="line-big">Eid‑ul‑Adha</span>
+        </h1>
+
+        <p class="hero__sub anim-fade-up d2">
+          A little piece of my heart, wrapped in gold — just for you 🌙
+        </p>
+
+      </div>
+    </section>
+
+<!-- ==========================================
+     PROFILE SECTION — boy & girl profiles
+     ========================================== -->
+<section class="profile-section" id="profileSection">
+
+  <!-- Floating romantic emojis container -->
+  <div class="profile-floaters" id="profileFloaters"></div>
+
+  <div class="profile-arena">
+
+    <!-- BOY CARD -->
+    <div class="profile-card boy" id="cardBoy">
+      <div class="profile-card__glow"></div>
+      <div class="profile-img-wrap">
+        <img src="boyimage.jpeg" alt="Boy" class="profile-img">
+        <div class="profile-img__ring"></div>
+        <div class="profile-img__ring profile-img__ring--2"></div>
+      </div>
+      <div class="profile-details">
+        <h3 class="profile-name">AMAN KHAN</h3>
+        <p class="profile-profession">✦ Software Engineer ✦</p>
+        <p class="profile-age">Age: 22</p>
+        <div class="profile-badge">💫 His Heart</div>
+      </div>
+      <!-- Kiss particles burst point -->
+      <div class="profile-sparks" id="sparksLeft"></div>
+    </div>
+
+    <!-- CENTRE — animated heart + connection line -->
+    <div class="profile-centre">
+      <div class="conn-line" id="connLine">
+        <svg viewBox="0 0 140 60" xmlns="http://www.w3.org/2000/svg" class="conn-svg">
+          <defs>
+            <linearGradient id="lineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%"   stop-color="#f5c842" stop-opacity="0"/>
+              <stop offset="50%"  stop-color="#f5c842" stop-opacity="1"/>
+              <stop offset="100%" stop-color="#f5c842" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path d="M10,30 Q70,5 130,30" stroke="url(#lineGrad)" stroke-width="1.5" fill="none" stroke-dasharray="4 4">
+            <animate attributeName="stroke-dashoffset" from="100" to="0" dur="2s" repeatCount="indefinite"/>
+          </path>
+          <path d="M10,30 Q70,55 130,30" stroke="url(#lineGrad)" stroke-width="1.5" fill="none" stroke-dasharray="4 4">
+            <animate attributeName="stroke-dashoffset" from="0" to="100" dur="2s" repeatCount="indefinite"/>
+          </path>
+        </svg>
+      </div>
+      <div class="big-heart" id="bigHeart">
+        <span class="big-heart__emoji">❤️</span>
+        <div class="big-heart__pulse"></div>
+        <div class="big-heart__pulse big-heart__pulse--2"></div>
+      </div>
+      <!-- Orbiting emojis -->
+      <div class="orbit">
+        <span class="orbit__item" style="--i:0">🌙</span>
+        <span class="orbit__item" style="--i:1">🌹</span>
+        <span class="orbit__item" style="--i:2">✨</span>
+        <span class="orbit__item" style="--i:3">💛</span>
+      </div>
+    </div>
+
+    <!-- GIRL CARD -->
+    <div class="profile-card girl" id="cardGirl">
+      <div class="profile-card__glow"></div>
+      <div class="profile-img-wrap">
+        <img src="girlimage.jpg" alt="Girl" class="profile-img">
+        <div class="profile-img__ring"></div>
+        <div class="profile-img__ring profile-img__ring--2"></div>
+      </div>
+      <div class="profile-details">
+        <h3 class="profile-name">LAILA KHAN</h3>
+        <p class="profile-profession">✦ STUDENT ✦</p>
+        <p class="profile-age">Age: 18</p>
+        <div class="profile-badge">💫 Her Heart</div>
+      </div>
+      <div class="profile-sparks" id="sparksRight"></div>
+    </div>
+
+  </div><!-- /.profile-arena -->
+
+  <!-- Romantic status ticker -->
+  <div class="love-ticker rv">
+    <span class="love-ticker__dot"></span>
+    <span class="love-ticker__text" id="loveTickerText">Eid Mubarak to you 🌙</span>
+    <span class="love-ticker__dot"></span>
+  </div>
+
+  <!-- BUTTON now lives below profiles -->
+  <div class="profile-btn-wrap rv d1">
+    <button class="btn-open" id="openGiftBtn">
+      <span class="btn-open__label">Open Your Gift</span>
+      <span class="btn-open__emoji">🎁</span>
+      <span class="btn-open__shine"></span>
+    </button>
+  </div>
+
+</section>
+       
+
+
+
+    <!-- ==========================================
+         SECTION 3 — MESSAGE (locked by default)
+    ========================================== -->
+    <section class="msg-section locked" id="msgSection">
+
+      <!-- Lock screen overlay -->
+      <div class="msg-lock" id="msgLock">
+        <div class="msg-lock__box">
+          <span class="msg-lock__icon">🎁</span>
+          <p class="msg-lock__hint">
+            Press <strong>"Open Your Gift"</strong> above<br/>to reveal your message
+          </p>
+        </div>
+      </div>
+
+      <!-- Actual message (blurred when locked) -->
+      <div class="msg-inner" id="msgInner">
+        <div class="sec-head rv">
+          <span class="divider"></span>
+          <h2 class="sec-title">A Message From My Heart</h2>
+          <span class="divider"></span>
+        </div>
+
+        <div class="msg-card rv d1">
+          <span class="corner tl"></span><span class="corner tr"></span>
+          <span class="corner bl"></span><span class="corner br"></span>
+
+          <p class="msg-quote">"Some friendships are a gift from Allah."</p>
+          <p class="msg-body" id="typingTarget"></p>
+          <span class="cursor" id="typingCursor">|</span>
+          <p class="msg-sig">— With love &amp; duas 🤍</p>
+        </div>
+      </div>
+
+    </section>
+    <!-- END Message -->
+
+
+    <!-- ==========================================
+         SECTION 4 — EID FOOD
+    ========================================== -->
+    <section class="food-sec" id="foodSec">
+      <div class="sec-head rv">
+        <span class="divider"></span>
+        <h2 class="sec-title">Flavours of Eid 🍽️</h2>
+        <span class="divider"></span>
+      </div>
+      <p class="sec-sub rv d1">The aroma of Eid — dishes that carry love in every bite</p>
+
+      <div class="food-grid">
+
+        <!-- FOOD CARD template:
+             img with onerror → emoji fallback
+             overlay gradient on image
+             card name + description                -->
+
+        <div class="food-card rv d1">
+          <div class="fc-img-wrap">
+            <img src="https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=480&q=80&fit=crop&crop=center"
+                 alt="Biryani"
+                 onerror="this.style.display='none';this.parentElement.querySelector('.fc-emoji').style.display='flex'"/>
+            <div class="fc-emoji">🍛</div>
+            <div class="fc-grad"></div>
+          </div>
+          <div class="fc-body">
+            <h3 class="fc-name">Biryani</h3>
+            <p class="fc-desc">Fragrant basmati layered with slow-cooked meat, saffron &amp; whole spices.</p>
+          </div>
+          <div class="fc-shine"></div>
+        </div>
+
+        <div class="food-card rv d2">
+          <div class="fc-img-wrap">
+            <img src="https://images.unsplash.com/photo-1585937421612-70a008356fbe?w=480&q=80&fit=crop&crop=center"
+                 alt="Mutton Karahi"
+                 onerror="this.style.display='none';this.parentElement.querySelector('.fc-emoji').style.display='flex'"/>
+            <div class="fc-emoji">🥘</div>
+            <div class="fc-grad"></div>
+          </div>
+          <div class="fc-body">
+            <h3 class="fc-name">Mutton Karahi</h3>
+            <p class="fc-desc">Tender mutton in rich tomato gravy with ginger, garlic &amp; green chillies.</p>
+          </div>
+          <div class="fc-shine"></div>
+        </div>
+
+        <div class="food-card rv d3">
+          <div class="fc-img-wrap">
+            <img src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=480&q=80&fit=crop&crop=center"
+                 alt="BBQ Kebabs"
+                 onerror="this.style.display='none';this.parentElement.querySelector('.fc-emoji').style.display='flex'"/>
+            <div class="fc-emoji">🔥</div>
+            <div class="fc-grad"></div>
+          </div>
+          <div class="fc-body">
+            <h3 class="fc-name">BBQ &amp; Seekh Kebabs</h3>
+            <p class="fc-desc">Juicy charcoal-grilled meat skewers served sizzling with mint chutney.</p>
+          </div>
+          <div class="fc-shine"></div>
+        </div>
+
+        <div class="food-card rv d1">
+          <div class="fc-img-wrap">
+            <img src="https://images.unsplash.com/photo-1544025162-d76694265947?w=480&q=80&fit=crop&crop=center"
+                 alt="Nihari"
+                 onerror="this.style.display='none';this.parentElement.querySelector('.fc-emoji').style.display='flex'"/>
+            <div class="fc-emoji">🍲</div>
+            <div class="fc-grad"></div>
+          </div>
+          <div class="fc-body">
+            <h3 class="fc-name">Beef stack</h3>
+            <p class="fc-desc">Slow-cooked beef shank with bone marrow &amp; deep aromatic spices.</p>
+          </div>
+          <div class="fc-shine"></div>
+        </div>
+
+        <div class="food-card rv d2">
+          <div class="fc-img-wrap">
+            <img src="https://images.unsplash.com/photo-1568571780765-9276ac8b75a2?w=480&q=80&fit=crop&crop=center"
+                 alt="Sheer Khurma"
+                 onerror="this.style.display='none';this.parentElement.querySelector('.fc-emoji').style.display='flex'"/>
+            <div class="fc-emoji">🍮</div>
+            <div class="fc-grad"></div>
+          </div>
+          <div class="fc-body">
+            <h3 class="fc-name">Sheer Khurma</h3>
+            <p class="fc-desc">Silky vermicelli pudding with rose water, pistachios &amp; plump dried dates.</p>
+          </div>
+          <div class="fc-shine"></div>
+        </div>
+
+        <div class="food-card rv d3">
+          <div class="fc-img-wrap">
+            <img src="https://images.unsplash.com/photo-1603048588665-791ca8aea617?w=480&q=80&fit=crop&crop=center"
+                 alt="Dates"
+                 onerror="this.style.display='none';this.parentElement.querySelector('.fc-emoji').style.display='flex'"/>
+            <div class="fc-emoji">🌴</div>
+            <div class="fc-grad"></div>
+          </div>
+          <div class="fc-body">
+            <h3 class="fc-name">Peacefull songs</h3>
+            <p class="fc-desc">Listen to fresh your mood and mind.</p>
+          </div>
+          <div class="fc-shine"></div>
+        </div>
+
+        <div class="food-card rv d1">
+          <div class="fc-img-wrap">
+            <img src="https://images.unsplash.com/photo-1519676867240-f03562e64548?w=480&q=80&fit=crop&crop=center"
+                 alt="Baklava"
+                 onerror="this.style.display='none';this.parentElement.querySelector('.fc-emoji').style.display='flex'"/>
+            <div class="fc-emoji">🍯</div>
+            <div class="fc-grad"></div>
+          </div>
+          <div class="fc-body">
+            <h3 class="fc-name">Baklava</h3>
+            <p class="fc-desc">Golden filo layers, crushed pistachios &amp; almonds drenched in warm honey.</p>
+          </div>
+          <div class="fc-shine"></div>
+        </div>
+
+        <div class="food-card rv d2">
+          <div class="fc-img-wrap">
+            <img src="https://images.unsplash.com/photo-1579954115545-a95591f28bfc?w=480&q=80&fit=crop&crop=center"
+                 alt="Kheer"
+                 onerror="this.style.display='none';this.parentElement.querySelector('.fc-emoji').style.display='flex'"/>
+            <div class="fc-emoji">🍚</div>
+            <div class="fc-grad"></div>
+          </div>
+          <div class="fc-body">
+            <h3 class="fc-name">Kheer</h3>
+            <p class="fc-desc">Creamy rice pudding perfumed with cardamom, saffron &amp; crushed almonds.</p>
+          </div>
+          <div class="fc-shine"></div>
+        </div>
+
+      </div>
+    </section>
+    <!-- END Food -->
+
+
+    <!-- ==========================================
+         SECTION 5 — PRINCESS GALLERY
+         Soft, girly, feminine images
+    ========================================== -->
+    <section class="gal-sec" id="galSec">
+      <div class="sec-head rv">
+        <span class="divider"></span>
+        <h2 class="sec-title">For My Princess ✨</h2>
+        <span class="divider"></span>
+      </div>
+      <p class="sec-sub rv d1">Because every moment with you feels like a fairytale 🌸</p>
+
+      <div class="gal-grid">
+
+        <!-- Red roses -->
+        <div class="gal-item rv d1"
+             data-caption="Every rose reminds me of how beautiful you are 🌹"
+             data-img="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=900&q=85&fit=crop">
+          <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?w=600&q=80&fit=crop"
+               alt="Red roses"
+               onerror="this.style.background='linear-gradient(135deg,#3d1020,#7a1530)';this.style.display='block'"/>
+          <div class="gal-hover">
+            <span>🌹</span><p>Made for You</p>
+          </div>
+        </div>
+
+        <!-- Cherry blossoms — tall -->
+        <div class="gal-item gal-tall rv d2"
+             data-caption="You bloom like cherry blossoms in spring 🌸"
+             data-img="https://images.unsplash.com/photo-1522383225653-ed111181a951?w=900&q=85&fit=crop">
+          <img src="https://images.unsplash.com/photo-1522383225653-ed111181a951?w=600&q=80&fit=crop"
+               alt="Cherry blossoms"
+               onerror="this.style.background='linear-gradient(135deg,#2d0e2a,#6b2060)';this.style.display='block'"/>
+          <div class="gal-hover">
+            <span>🌸</span><p>In Full Bloom</p>
+          </div>
+        </div>
+
+        <!-- Gold jewellery -->
+        <div class="gal-item rv d3"
+             data-caption="You deserve every golden thing in this world 👑"
+             data-img="https://images.unsplash.com/photo-1611652022419-a9419f74343d?w=900&q=85&fit=crop">
+          <img src="https://images.unsplash.com/photo-1611652022419-a9419f74343d?w=600&q=80&fit=crop"
+               alt="Gold jewellery"
+               onerror="this.style.background='linear-gradient(135deg,#2a1a00,#7a5000)';this.style.display='block'"/>
+          <div class="gal-hover">
+            <span>👑</span><p>Pure Gold</p>
+          </div>
+        </div>
+
+        <!-- Soft pink flowers -->
+        <div class="gal-item rv d1"
+             data-caption="As delicate and precious as you 🌷"
+             data-img="https://images.unsplash.com/photo-1526047932273-341f2a7631f9?w=900&q=85&fit=crop">
+          <img src="https://images.unsplash.com/photo-1526047932273-341f2a7631f9?w=600&q=80&fit=crop"
+               alt="Pink flowers"
+               onerror="this.style.background='linear-gradient(135deg,#2a0a1e,#7a2060)';this.style.display='block'"/>
+          <div class="gal-hover">
+            <span>🌷</span><p>Soft &amp; Sweet</p>
+          </div>
+        </div>
+
+        <!-- Rose petals wide -->
+        <div class="gal-item gal-wide rv d2"
+             data-caption="You leave a fragrance wherever you go 🌺"
+             data-img="https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=900&q=85&fit=crop">
+          <img src="https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?w=800&q=80&fit=crop"
+               alt="Rose petals"
+               onerror="this.style.background='linear-gradient(135deg,#2a0a10,#7a1030)';this.style.display='block'"/>
+          <div class="gal-hover">
+            <span>🌺</span><p>Your Fragrance</p>
+          </div>
+        </div>
+
+        <!-- Bokeh sparkle -->
+        <div class="gal-item rv d3"
+             data-caption="You light up everything around you ✨"
+             data-img="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=900&q=85&fit=crop">
+          <img src="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=600&q=80&fit=crop"
+               alt="Sparkle lights"
+               onerror="this.style.background='linear-gradient(135deg,#0a0a2a,#20205a)';this.style.display='block'"/>
+          <div class="gal-hover">
+            <span>✨</span><p>You Sparkle</p>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+    <!-- END Gallery -->
+
+
+    <!-- ==========================================
+         SECTION 6 — SURPRISE
+    ========================================== -->
+    <section class="surp-sec" id="surpSec">
+      <div class="sec-head rv">
+        <span class="divider"></span>
+        <h2 class="sec-title">One Last Surprise 🎁</h2>
+        <span class="divider"></span>
+      </div>
+
+      <div class="surp-btn-wrap rv d1">
+        <button class="btn-surp" id="surpriseBtn">
+          <span>✨ Tap for Your Surprise ✨</span>
+          <div class="btn-surp__glow"></div>
+        </button>
+      </div>
+
+      <div class="surp-card" id="surpCard">
+        <div class="surp-card__inner">
+          <div class="surp-img-wrap">
+            <img src="https://images.unsplash.com/photo-1506318137071-a8e063b4bec0?w=800&q=85&fit=crop"
+                 alt="Starry background"
+                 onerror="this.style.background='linear-gradient(135deg,#2a0a1e,#7a1040)'"/>
+            <div class="surp-img-text">Eid Mubarak 🌸</div>
+          </div>
+          <p class="surp-emoji">🌸💛🤍</p>
+          <h3 class="surp-title">You Are My Favourite Person</h3>
+          <p class="surp-msg">
+            You are one of the most special person in my life.<br/>
+            Your laughter is contagious, your kindness is rare,<br/>
+            and your love is a blessing I thank Allah for every single day.<br/>
+            <strong>Eid Mubarak, my love. 🤍</strong>
+          </p>
+          <p class="surp-dua">تَقَبَّلَ اللهُ مِنَّا وَمِنكُم — May Allah accept from us and from you.</p>
+        </div>
+      </div>
+
+      <canvas id="confettiCanvas" class="confetti-canvas"></canvas>
+    </section>
+    <!-- END Surprise -->
+
+
+    <!-- ==========================================
+         SECTION 7 — FOOTER
+    ========================================== -->
+    <footer class="footer" id="footer">
+      <div class="footer__moon">🌙</div>
+      <p class="footer__wish">
+        "تَقَبَّلَ اللهُ مِنَّا وَمِنكُم<br/>
+        <em>May Allah accept from all of us — Eid Mubarak 🌟</em>
+      </p>
+      <p class="footer__credit">Made with 💛 &amp; duas — just for you</p>
+      <button class="footer__up" id="scrollTopBtn">↑</button>
+    </footer>
+    <!-- END Footer -->
+
+    <!-- Lightbox (Placed globally to prevent stacking context z-index clipping) -->
+    <div class="lightbox" id="lightbox">
+      <button class="lb-close" id="lbClose">✕</button>
+      <div class="lb-img"    id="lbImg"></div>
+      <p  class="lb-caption" id="lbCaption"></p>
+    </div>
+
+  </div>
+  <!-- END mainSite -->
+
+  <script src="script.js"></script>
+</body>
+</html>
